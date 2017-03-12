@@ -30,7 +30,6 @@ class TopicsController < ApplicationController
       if @topic.save
         format.html { redirect_to topics_path, notice: 'Topic was successfully created.' }
         format.json { render :show, status: :created, location: @topic }
-        @topic.vote_count = 0
       else
         format.html { render :new }
         format.json { render json: @topic.errors, status: :unprocessable_entity }
