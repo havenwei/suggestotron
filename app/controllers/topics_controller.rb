@@ -1,10 +1,10 @@
 class TopicsController < ApplicationController
-  before_action :set_topic, only: [:show, :edit, :update, :destroy]
+  before_action :set_topic, only: [:show, :edit, :update, :destroy, :upvote, :downvote]
 
   # GET /topics
   # GET /topics.json
   def index
-    @topics = Topic.all
+    @topics = Topic.all.order("vote_count DESC")
   end
 
   # GET /topics/1
@@ -30,6 +30,7 @@ class TopicsController < ApplicationController
       if @topic.save
         format.html { redirect_to topics_path, notice: 'Topic was successfully created.' }
         format.json { render :show, status: :created, location: @topic }
+        @topic.vote_count = 0
       else
         format.html { render :new }
         format.json { render json: @topic.errors, status: :unprocessable_entity }
@@ -62,15 +63,17 @@ class TopicsController < ApplicationController
   end
 
   def upvote
-    @topic = Topic.find(params[:id])
     @topic.votes.create
+    @topic.vote_count = @topic.votes.count
+    @topic.save
     redirect_to(topics_path)
   end
 
   def downvote
-    @topic = Topic.find(params[:id])
     if @topic.votes.count != 0
       @topic.votes.first.destroy
+      @topic.vote_count = @topic.votes.count
+      @topic.save
       redirect_to(topics_path)
     end
   end
